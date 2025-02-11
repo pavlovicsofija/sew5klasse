@@ -1,28 +1,24 @@
-import axios from "axios";
+import axios from 'axios';
 
-const SONG_API_BASE_URL = 'http://localhost:8080/api/songs';
+const API_URL = 'http://localhost:8080/api/songs';
 
-class SongService {
-
+export default {
     getSongs() {
-        return axios.get(SONG_API_BASE_URL);
-    }
-
-    createSong(song) {
-        return axios.post(SONG_API_BASE_URL, song);
-    }
-
-    updateSong(id, song) {
-        return axios.put(`${SONG_API_BASE_URL}/${id}`, song);
-    }
-
-    deleteSong(id) {
-        return axios.delete(`${SONG_API_BASE_URL}/${id}`);
-    }
-
+        return axios.get(API_URL);
+    },
     searchSongs(keyword) {
-        return axios.get(`${SONG_API_BASE_URL}/search`, { params: { keyword } });
+        return axios.get(`${API_URL}/search?keyword=${keyword}`);
+    },
+    createSong(song) {
+        return axios.post(API_URL, song);
+    },
+    getSongData(id) {
+        return axios.get(`${API_URL}/data/${id}`);
+    },
+    updateSong(id, song) {
+        return axios.put(`${API_URL}/${id}`, song);
+    },
+    deleteSong(id) {
+        return axios.delete(`${API_URL}/${id}`);
     }
-}
-
-export default new SongService();
+};

@@ -1,6 +1,7 @@
 package at.rennweg.htl.controller;
 
 import at.rennweg.htl.entity.Song;
+import at.rennweg.htl.projection.SongProjection;
 import at.rennweg.htl.repository.SongRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,17 +13,20 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "")
+@CrossOrigin(origins = "http://localhost:8081")  // Ersetze mit der tatsächlichen Frontend-URL
+
 public class SongController {
 
     @Autowired
     private SongRepository songRepository;
 
     @GetMapping("/songs")
-    public List<Song> fetchSongs() {
-        return songRepository.findAll();
+    public ResponseEntity<List<SongProjection>> fetchSongs() {
+        List<SongProjection> songs = songRepository.findAllProjectedBy();
+        return ResponseEntity.ok(songs);
     }
 
+    //wird gespeichert
     @PostMapping("/songs")
     public ResponseEntity<Song> createSong(@RequestBody Song song) {
         try {
@@ -33,16 +37,34 @@ public class SongController {
         }
     }
 
+    @GetMapping("/songs/{id}")
+    public ResponseEntity<Song> getSong(@PathVariable Long id) {
+        Optional<Song> song = songRepository.findById(id);
+        if (song.isPresent()) {
+            song.get().setDataUrl(null);  // verhindert Senden von Song nDaten an Client
+            return ResponseEntity.ok(song.get());
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+    //nur wenn man abspielt
+    @GetMapping("/songs/data/{id}") //es soll /songs/id/data sein
+    public ResponseEntity<String> getSongData(@PathVariable Long id) {
+        Optional<Song> song = songRepository.findById(id);
+        return song.map(value -> ResponseEntity.ok(value.getDataUrl()))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
     @PutMapping("/songs/{id}")
     public ResponseEntity<Song> updateSong(@PathVariable("id") Long id, @RequestBody Song songDetails) {
         Optional<Song> existingSong = songRepository.findById(id);
-
         if (existingSong.isPresent()) {
             Song song = existingSong.get();
             song.setTitle(songDetails.getTitle());
             song.setArtist(songDetails.getArtist());
             song.setGenre(songDetails.getGenre());
             song.setLength(songDetails.getLength());
+            song.setDataUrl(songDetails.getDataUrl());
             return new ResponseEntity<>(songRepository.save(song), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -57,11 +79,5 @@ public class SongController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @GetMapping("/songs/search")
-    public ResponseEntity<List<Song>> searchSongs(@RequestParam("keyword") String keyword) {
-        List<Song> results = songRepository.searchByTitleOrArtist(keyword);
-        return results.isEmpty() ? ResponseEntity.status(HttpStatus.NOT_FOUND).body(results) : ResponseEntity.ok(results);
     }
 }
