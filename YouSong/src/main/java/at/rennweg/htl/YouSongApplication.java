@@ -41,10 +41,33 @@ public class YouSongApplication implements CommandLineRunner {
 				.length(5.3255)
 				.build();
 
+		Song song4 = Song.builder()
+				.title("Baby")
+				.artist("Justin Bieber")
+				.genre("Pop")
+				.length(2.44)
+				.build();
+
+		Song song5 = Song.builder()
+				.title("DNA")
+				.artist("BTS")
+				.genre("K-Pop")
+				.length(5.3255)
+				.build();
+		Song song6 = Song.builder()
+				.title("TikTok")
+				.artist("Kesha")
+				.genre("Pop")
+				.length(3.224)
+				.build();
+
 
 		songRepository.save(song1);
 		songRepository.save(song2);
 		songRepository.save(song3);
+		songRepository.save(song4);
+		songRepository.save(song5);
+		songRepository.save(song6);
 
 	}
 }

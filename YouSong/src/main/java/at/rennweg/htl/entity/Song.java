@@ -28,5 +28,5 @@ public class Song {
     private double length;
 
     @Column(name = "data_url", columnDefinition = "LONGTEXT")
-    private String dataUrl;  // Musikdatei wird hier gespeichert
+    private String dataUrl;  // Hier wird die Musikdatei referenziert
 }

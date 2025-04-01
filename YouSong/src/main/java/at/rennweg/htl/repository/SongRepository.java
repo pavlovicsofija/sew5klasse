@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface SongRepository extends JpaRepository<Song, Long> {
-    // Diese Methode gibt nur die Projektion zurück, ohne die Musikdaten
+    // Gibt nur die Projektion ohne Musikdaten zurück
     List<SongProjection> findAllProjectedBy();
 }

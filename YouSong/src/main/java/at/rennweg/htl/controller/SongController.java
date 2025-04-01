@@ -1,32 +1,36 @@
 package at.rennweg.htl.controller;
 
 import at.rennweg.htl.entity.Song;
-import at.rennweg.htl.projection.SongProjection;
 import at.rennweg.htl.repository.SongRepository;
+import at.rennweg.htl.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:8081")  // Ersetze mit der tatsächlichen Frontend-URL
-
+@CrossOrigin(origins = "http://localhost:8081")
 public class SongController {
 
+    private final SongRepository songRepository;
+    private final SongService songService;
+
     @Autowired
-    private SongRepository songRepository;
+    public SongController(SongRepository songRepository, SongService songService) {
+        this.songRepository = songRepository;
+        this.songService = songService;
+    }
 
     @GetMapping("/songs")
-    public ResponseEntity<List<SongProjection>> fetchSongs() {
-        List<SongProjection> songs = songRepository.findAllProjectedBy();
+    public ResponseEntity<Page<Song>> fetchSongs(@RequestParam(defaultValue = "0") int page) { //page
+        Page<Song> songs = songService.getSongs(page);
         return ResponseEntity.ok(songs);
     }
 
-    //wird gespeichert
     @PostMapping("/songs")
     public ResponseEntity<Song> createSong(@RequestBody Song song) {
         try {
@@ -41,14 +45,13 @@ public class SongController {
     public ResponseEntity<Song> getSong(@PathVariable Long id) {
         Optional<Song> song = songRepository.findById(id);
         if (song.isPresent()) {
-            song.get().setDataUrl(null);  // verhindert Senden von Song nDaten an Client
+            song.get().setDataUrl(null);
             return ResponseEntity.ok(song.get());
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
-    //nur wenn man abspielt
-    @GetMapping("/songs/data/{id}") //es soll /songs/id/data sein
+    @GetMapping("/songs/data/{id}")
     public ResponseEntity<String> getSongData(@PathVariable Long id) {
         Optional<Song> song = songRepository.findById(id);
         return song.map(value -> ResponseEntity.ok(value.getDataUrl()))
