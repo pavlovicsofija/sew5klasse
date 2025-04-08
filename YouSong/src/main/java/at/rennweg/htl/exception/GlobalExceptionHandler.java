@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
+        System.out.println("Validation errors: " + errors); // Debug log
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
-
 }

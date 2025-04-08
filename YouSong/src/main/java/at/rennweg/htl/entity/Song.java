@@ -28,6 +28,7 @@ public class Song {
     @Positive(message = "Die Länge muss eine positive Zahl sein.")
     private double length;
 
-    @Column(name = "data_url", columnDefinition = "LONGTEXT")
-    private String dataUrl;  // Musikdatei wird hier gespeichert
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String fileData;
 }
