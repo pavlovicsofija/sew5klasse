@@ -3,36 +3,23 @@ package at.rennweg.htl.controller;
 import at.rennweg.htl.dto.SongDTO;
 import at.rennweg.htl.entity.Song;
 import at.rennweg.htl.repository.SongRepository;
-<<<<<<< HEAD
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-=======
-import at.rennweg.htl.service.SongService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
->>>>>>> 604965f74d51d230ffa22ac0328b8c8d0e51bcb0
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-<<<<<<< HEAD
-import java.io.IOException;
 import java.util.List;
-=======
->>>>>>> 604965f74d51d230ffa22ac0328b8c8d0e51bcb0
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-<<<<<<< HEAD
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:8081")  // Ersetze mit der tatsächlichen Frontend-URL
+
 public class SongController {
-=======
-@CrossOrigin(origins = "http://localhost:8081")
-public class SongController {
+
+    private final SongRepository songRepository;
+    private final SongService songService;
 
     private final SongRepository songRepository;
     private final SongService songService;
@@ -45,26 +32,12 @@ public class SongController {
     }
 
     @GetMapping("/songs")
-<<<<<<< HEAD
-    public List<SongDTO> fetchSongs() {
-        return songRepository.findAll().stream()
-                .map(song -> new SongDTO(song.getId(), song.getTitle(), song.getArtist(), song.getGenre(), song.getLength()))
-                .toList();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Song> getSongById(@PathVariable Long id) {
-        Optional<Song> songOptional = songRepository.findById(id);
-        return songOptional.map(song -> ResponseEntity.ok().body(song))
-                .orElse(ResponseEntity.notFound().build());
-    }
-=======
-    public ResponseEntity<Page<Song>> fetchSongs(@RequestParam(defaultValue = "0") int page) { //page
-        Page<Song> songs = songService.getSongs(page);
+    public ResponseEntity<List<SongProjection>> fetchSongs() {
+        List<SongProjection> songs = songRepository.findAllProjectedBy();
         return ResponseEntity.ok(songs);
     }
 
->>>>>>> 604965f74d51d230ffa22ac0328b8c8d0e51bcb0
+    //wird gespeichert
     @PostMapping("/songs")
     public ResponseEntity<Object> createSong(@RequestParam(required = false) MultipartFile file, @RequestParam double length, @RequestBody SongDTO songDTO) throws IOException {
         if (file == null) {
@@ -81,22 +54,12 @@ public class SongController {
         if (song.isPresent()) {
             song.get().setDataUrl(null);
             return ResponseEntity.ok(song.get());
->>>>>>> 604965f74d51d230ffa22ac0328b8c8d0e51bcb0
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
 
-<<<<<<< HEAD
-        // Hier kannst du dann den Song speichern
-        Song song = new Song();
-        song.setTitle(songDTO.getTitle());
-        song.setArtist(songDTO.getArtist());
-        song.setGenre(songDTO.getGenre());
-        song.setLength(songDTO.getLength());
-        song.setFileData(new String(file.getBytes()));  // Speichert die Datei als String (je nach Bedarf anpassen)
-
-        Song savedSong = songRepository.save(song);
-        return ResponseEntity.ok(savedSong);
-=======
-    @GetMapping("/songs/data/{id}")
+    //nur wenn man abspielt
+    @GetMapping("/songs/data/{id}") //es soll /songs/id/data sein
     public ResponseEntity<String> getSongData(@PathVariable Long id) {
         Optional<Song> song = songRepository.findById(id);
         return song.map(value -> ResponseEntity.ok(value.getDataUrl()))
