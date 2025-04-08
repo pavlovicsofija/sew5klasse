@@ -1,19 +1,14 @@
-package at.rennweg.htl.entity;
+package at.rennweg.htl.dto;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
-import jakarta.validation.constraints.*;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
-@Table(name = "songs")
-public class Song {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@NoArgsConstructor
+public class SongDTO {
     private long id;
 
     @NotBlank(message = "Der Titel darf nicht leer sein.")
@@ -27,8 +22,4 @@ public class Song {
 
     @Positive(message = "Die Länge muss eine positive Zahl sein.")
     private double length;
-
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String fileData;
 }
